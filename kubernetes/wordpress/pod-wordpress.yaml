@@ -1,0 +1,22 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: wordpress
+  namespace: wordpress
+  labels:
+    app: wordpress
+spec:
+  volumes:
+    - name: wordpress
+      persistentVolumeClaim:
+       claimName: claim-ficheros
+  containers:
+    - name: wordpress
+      image: richarvey/nginx-php-fpm
+
+      ports:
+        - containerPort: 80
+          name: "http-server"
+      volumeMounts:
+        - mountPath: "/var/www/html"
+          name: wordpress

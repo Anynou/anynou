@@ -1,0 +1,27 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: mysql
+  namespace: wordpress
+  labels:
+    app: mysql-wordpress
+spec:
+  volumes:
+    - name: mysql
+      persistentVolumeClaim:
+       claimName: claim-mysql
+  containers:
+    - name: mysql
+      image: mysql:5.6
+      env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass-new
+              key: password
+      ports:
+        - containerPort: 3306
+          name: "mysql-server"
+      volumeMounts:
+        - mountPath: "/var/lib/mysql"
+          name: mysql

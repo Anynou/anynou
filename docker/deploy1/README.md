@@ -1,0 +1,3 @@
+Este es un ejemplo de un despliegue muy sencillo de docker de un entorno lamp.
+Compartiremos desde nuestro equipo el directorio prueba, que aloja dos ficheros y son accesibles a través del navegador y el directorio deploy_db, que contiene un fichero sql con datos de prueba.
+Para que el index.php tenga contenido, debemos copiar el fichero datos_prueba.sql en el directorio "/var/lib/docker/volumes/docker_deploy_db/_data". Después accedemos al contenedor de mysql ejcutando "docker exec -it db bash". Una vez estamos en el contenedor simplemente ejecutamos "mysql prueba < datos_prueba.sql". Al acceder por el navegador debemos ver datos de pueba.

@@ -1,0 +1,41 @@
+version: '2'
+services:
+  proxy:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    networks:
+      - frontend
+      - backend   
+    volumes:
+      - ./nginx_conf:/etc/nginx/conf.d
+  web:
+    image: 1and1internet/ubuntu-16-apache-php-7.0
+    depends_on:
+      - db
+    ports: ["8080"]
+    volumes:
+      - ./prueba:/var/www/html
+      - ./php_conf/10.pers.ini:/etc/php/7.0/apache2/conf.d/custom.ini
+    networks:
+      - backend
+  db:
+    image: mysql:5.7
+    volumes:
+      - deploy_db:/root
+      - ./prueba_db:/var/lib/mysql
+    ports: ["3306"]
+    environment: 
+      - MYSQL_HOST=db
+      - MYSQL_ROOT_PASSWORD=mypass
+      - MYSQL_USER=usu1
+      - MYSQL_PASSWORD=mypassusu1
+      - MYSQL_DATABASE=prueba
+    networks:
+      - backend
+    
+volumes:
+  deploy_db:
+networks:
+  frontend:
+  backend:

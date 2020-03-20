@@ -1,0 +1,49 @@
+FROM raspbian/stretch:latest
+MAINTAINER Sr.Anynou
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get clean all
+
+RUN apt-get update --fix-missing
+
+RUN apt-get install -y \
+	php \
+	php-bz2 \
+	php-cgi \
+	php-cli \
+	php-common \
+	php-curl \
+	php-dev \
+	php-enchant \
+	php-fpm \
+	php-gd \
+	php-gmp \
+	php-imap \
+	php-interbase \
+	php-intl \
+	php-json \
+	php-ldap \
+	php-mbstring \
+	php-mysql \
+	php-odbc \
+	php-opcache \
+	php-pgsql \
+	php-phpdbg \
+	php-pspell \
+	php-readline \
+	php-recode \
+	php-snmp \
+	php-sybase \
+	php-tidy \
+	php-xmlrpc \
+	php-xsl \
+	php-zip
+RUN apt-get install apache2 libapache2-mod-php -y
+ 
+RUN a2enmod rewrite
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
+EXPOSE 80/tcp
+CMD ["/usr/sbin/apachectl", "-D", "FOREGROUND"]
+
+RUN apt-get clean all

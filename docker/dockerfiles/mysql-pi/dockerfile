@@ -1,0 +1,18 @@
+FROM raspbian/stretch:latest
+MAINTAINER Sr.Anynou
+
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update && apt-get -y install supervisor git mysql-server pwgen
+
+ADD start-mysqld.sh /start-mysqld.sh
+ADD run.sh /run.sh
+RUN chmod 755 /*.sh
+COPY 50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+ADD my.cnf /etc/mysql/conf.d/my.cnf
+ADD supervisord-mysqld.conf /etc/supervisor/conf.d/supervisord-mysqld.conf
+
+ADD create_mysql_admin_user.sh /create_mysql_admin_user.sh
+RUN chmod 755 /*.sh
+
+EXPOSE 3306
+CMD ["/run.sh"]

@@ -1,0 +1,18 @@
+FROM alpine:latest
+LABEL maintainer=Sr.Anynou
+LABEL description="apache con php 7.2"
+
+ENV PHPVERSION 7
+
+RUN apk add --update apache2 php${PHPVERSION}-apache2 php${PHPVERSION} && \
+        rm -rf /var/cache/apk/* && \
+        mkdir /run/apache2/ && \
+        rm -rf /var/www/localhost/htdocs/index.html && \
+        echo "contenedor2" > /var/www/localhost/htdocs/index.php && \
+        chmod 755 /var/www/localhost/htdocs/index.php
+
+
+EXPOSE 80/tcp
+COPY httpd-foreground /usr/local/bin/
+RUN chmod +x /usr/local/bin/httpd-foreground
+CMD ["httpd-foreground"]

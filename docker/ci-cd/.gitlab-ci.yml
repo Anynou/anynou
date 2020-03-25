@@ -1,0 +1,15 @@
+image: docker:19.03.1
+services:
+  - docker:19.03.1-dind
+
+stages:
+  - build
+    
+step-building:
+  stage: build
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - for i in $(find . -type d -name "prueba*" | sed 's/\.\///g'); do docker build -f $i/dockerfile -t $CI_REGISTRY/anynou/ci-cd/$i:v1 . ; done
+    - for i in $(find . -type d -name "prueba*" | sed 's/\.\///g'); do docker push $CI_REGISTRY/anynou/ci-cd/$i:v1 ; done
+    

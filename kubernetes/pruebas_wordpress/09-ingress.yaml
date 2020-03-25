@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-wordpress
+spec:
+  rules:
+  - host: mywordpress.org
+    http:
+      paths:
+      - path: /wp-amin
+        backend:
+          serviceName: wordpress-svc
+          servicePort: 8080
+      - path: /
+        backend:
+          serviceName: wordpress-ro-svc
+          servicePort: 8081
+status:
+  loadBalancer:
+    ingress:
+    - ip: 37.87.65.40
+

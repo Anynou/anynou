@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+  wp-config.php: |
+    <?php
+
+    define('DB_NAME', getenv('wordpress'));
+
+    define('DB_USER', getenv('wordpressuser'));
+
+    define('DB_PASSWORD', getenv('wordpress'));
+
+    define('DB_HOST', getenv('mysql-svc'));
+
+    define( 'DB_CHARSET', 'utf8' );
+
+    define( 'DB_COLLATE', '' );
+
+    define( 'AUTH_KEY',         'put your unique phrase here' );
+    define( 'SECURE_AUTH_KEY',  'put your unique phrase here' );
+    define( 'LOGGED_IN_KEY',    'put your unique phrase here' );
+    define( 'NONCE_KEY',        'put your unique phrase here' );
+    define( 'AUTH_SALT',        'put your unique phrase here' );
+    define( 'SECURE_AUTH_SALT', 'put your unique phrase here' );
+    define( 'LOGGED_IN_SALT',   'put your unique phrase here' );
+    define( 'NONCE_SALT',       'put your unique phrase here' );
+
+    $table_prefix = 'wp_';
+
+    define( 'WP_DEBUG', false );
+
+    require_once( ABSPATH . 'wp-settings.php' );
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env
+data:
+  .env: |
+    WORDPRESS_DB_NAME=anynou_db
+    WORDPRESS_DB_USER=anynou_user
+    WORDPRESS_DB_PASSWORD=Jose1987
+    WORDPRESS_DB_HOST=mysql-svc
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - image: httpd
+        name: wordpress
+        ports:
+        - containerPort: 80
+          name: http
+        command:
+        - bash
+        - "-c"
+        - |
+          cp /config/wp-config.php /var/www/html/
+        volumeMounts:
+        - name: files-pvc
+          mountPath: "/var/www/html"
+        - name: config
+          mountPath: "/config"
+        - name: env
+          mountPath: "/env"
+      volumes:
+      - name: files-pvc
+        persistentVolumeClaim:
+          claimName: files-pvc
+      - name: config
+        configMap:
+            name: config
+      - name: env
+        configMap:
+            name: env
+      

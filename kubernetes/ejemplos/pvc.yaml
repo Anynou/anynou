@@ -1,12 +1,10 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: claim-new
-  namespace: wordpress
+  name: claim-ficheros
 spec:
-  storageClassName: manual
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5G
+      storage: 10G

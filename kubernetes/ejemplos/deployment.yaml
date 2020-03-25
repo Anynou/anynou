@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - image: httpd
+        name: wordpress
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+        - name: files-pvc
+          mountPath: "/var/www/html"
+        - name: config
+          mountPath: "/config"
+        - name: env
+          mountPath: "/env"
+      volumes:
+      - name: files-pvc
+        persistentVolumeClaim:
+          claimName: files-pvc
+      - name: config
+        configMap:
+            name: config
+      - name: env
+        configMap:
+            name: env

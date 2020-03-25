@@ -1,0 +1,17 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cron
+spec:
+  schedule: "*/1 * * * *" 
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cronjob
+            image: bash
+            command: ["/bin/bash",  "-c"]
+            args: 
+              - for i in apache1 apache2 apache3 ; do kubectl exec -p $i -- bash -c "echo hello >> /var/www/html/index.php"; done 
+          restartPolicy: OnFailure

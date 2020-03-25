@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress-ro
+  labels:
+    app: wordpress-ro
+spec:
+  selector:
+    matchLabels:
+      app: wordpress-ro
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: wordpress-ro
+    spec:
+      containers:
+      - image: anynou/wordpress
+        name: wordpress-ro
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+        - name: files-pvc
+          mountPath: "/var/www/html"
+          readOnly: true
+      volumes:
+      - name: files-pvc
+        persistentVolumeClaim:
+          claimName: files-pvc

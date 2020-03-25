@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wordpress-install
+spec:
+  template:
+    spec:
+      containers:
+      - name: install
+        image: bash
+        command: ["/bin/sh",  "-c"]
+        args: 
+          - cd /root; wget  https://wordpress.org/latest.tar.gz && tar -xzvf latest.tar.gz && cp -r wordpress/*  /var/www/html/ && \
+            cd /root; rm -rf latest.tar.gz wordpress && chown -R 33.33 /var/www/html/*
+        volumeMounts:
+        - name: files-pvc
+          mountPath: "/var/www/html"
+      volumes:
+      - name: files-pvc
+        persistentVolumeClaim:
+          claimName: files-pvc
+      restartPolicy: OnFailure

@@ -1,13 +1,13 @@
----
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx
-  namespace: wordpress
+  name: apache-svc
 spec:
+  type: NodePort
   ports:
-  - name: http
+  - port: 8080
+    protocol: TCP
     targetPort: 80
-    port: 80
+    nodePort: 30000
   selector:
     app: wordpress

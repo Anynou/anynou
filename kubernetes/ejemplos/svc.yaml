@@ -1,13 +1,13 @@
----
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-server
-  namespace: wordpress
+  name: my-service
 spec:
   ports:
   - name: mysql
     targetPort: 3306
     port: 3306
+    nodePort: 30040
+  type: NodePort
   selector:
-    app: mysql-wordpress
+    app: mypod

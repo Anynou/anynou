@@ -1,0 +1,37 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: volumen1
+  labels:
+    type: local
+spec:
+  volumeMode: Filesystem
+  storageClassName: files
+  persistentVolumeReclaimPolicy: Retain
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+  hostPath:
+    path: "/media/data1"
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: volumen2
+  labels:
+    type: local
+spec:
+  volumeMode: Filesystem
+  storageClassName: mysql
+  persistentVolumeReclaimPolicy: Retain
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+  hostPath:
+    path: "/media/data2"

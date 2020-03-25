@@ -1,0 +1,60 @@
+servers = [
+    {
+        :name => "k8s-master",
+        :type => "master",
+        :box => "ubuntu/bionic64",
+        :eth1 => "192.168.250.10",
+        :mem => "2048",
+        :cpu => "2"
+    },
+    {
+        :name => "k8s-node-1",
+        :type => "node",
+        :box => "ubuntu/bionic64",
+        :eth1 => "192.168.205.11",
+        :mem => "2048",
+        :cpu => "2"
+    },
+    {
+        :name => "k8s-node-2",
+        :type => "node",
+        :box => "ubuntu/bionic64",
+        :eth1 => "192.168.205.12",
+        :mem => "2048",
+        :cpu => "2"
+    }
+  ]
+
+$kubebase = <<-SCRIPT
+
+    add-apt-repository universe
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" >> /etc/apt/sources.list.d/kubernetes.list
+    apt-get update && apt-get install -y docker.io kubelet kubeadm kubectl kubernetes-cni nfs-kernel-server nfs-common
+    swapoff -a
+    systemctl daemon-reload && systemctl restart kubelet
+    systemctl enable docker.service
+    usermod -aG docker vagrant
+  SCRIPT
+
+
+Vagrant.configure("2") do |config|
+  servers.each do |opts|
+    config.vm.define opts[:name] do |config|
+
+      config.vm.box = opts[:box]
+
+      config.vm.box_check_update = false
+
+      config.vm.network "private_network", ip: opts[:eth1]
+
+      config.vm.provider "virtualbox" do |vb|
+        vb.gui = false
+        vb.cpus = opts[:cpu]
+        vb.memory = opts[:mem]
+      end
+  
+      config.vm.provision "shell", inline: $kubebase
+    end
+  end
+end

@@ -1,0 +1,13 @@
+---
+
+[todos]
+base    ansible_ssh_host=192.168.200.10
+magento ansible_ssh_host=192.168.200.101
+mysql   ansible_ssh_host=192.168.200.142
+alone   ansible_ssh_host=192.168.200.55
+varnish ansible_ssh_host=192.168.200.144
+docker  ansible_ssh_host=192.168.200.53
+alone3  ansible_ssh_host=192.168.200.128
+wordpress ansible_ssh_host=192.168.200.147
+elgg	ansible_ssh_host=192.168.200.135
+osticket	ansible_ssh_host=192.168.200.136 ansible_ssh_user=root

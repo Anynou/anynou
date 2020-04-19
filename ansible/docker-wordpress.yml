@@ -1,0 +1,41 @@
+---
+- hosts: docker
+  become: true
+  gather_facts: true
+  tasks:
+  - name: mysql container
+    docker_container: 
+      image: mysql:5.7 
+      name: wordpress_mysql 
+      volumes: 
+        - "db_wordpress:/var/lib/mysql" 
+      ports: 
+        - "3306:3306"
+      env:
+       MYSQL_ROOT_PASSWORD: root-pass
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpressuser
+       MYSQL_PASSWORD: wordpress
+
+  - name: wordpress container
+    docker_container:
+      name: wordpress
+      links:
+       - wordpress_mysql
+      image: wordpress:latest
+      ports:
+       - "80:80"
+      volumes:
+       - "data_wordpress:/var/www/html"
+     
+      env:
+       WORDPRESS_DB_HOST: wordpress_mysql:3306
+       WORDPRESS_DB_USER: wordpressuser
+       WORDPRESS_DB_PASSWORD: wordpress
+
+
+  
+ 
+    
+    
+    

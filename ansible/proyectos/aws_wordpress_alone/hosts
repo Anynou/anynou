@@ -1,0 +1,2 @@
+[todos]
+wordpress    ansible_ssh_host=aws-wordpress

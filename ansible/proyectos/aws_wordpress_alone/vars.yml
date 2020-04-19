@@ -1,0 +1,20 @@
+proyecto_conf:
+  prueba_wordpress:
+    proyecto: pruebawordpress.anynou.com.es
+
+apache_conf:
+  anynou:
+    apacheconf: /home/anynou/ansible/proyectos/aws_wordpress_alone/files/pruebawordpress.conf
+
+databases:
+  wordpress_db:
+    db_user: wordpress_user
+    db_password: wordpress
+    db_host: 'localhost'
+
+dominio: pruebawordpress.anynou.com.es
+db_name: wordpress_db
+db_user: wordpress_user
+db_pass: wordpress
+db_host: localhost
+

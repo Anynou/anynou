@@ -1,0 +1,25 @@
+---
+# tasks file for roles/mysql
+- name: instalar mysql
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - mariadb-server
+    - mariadb-client
+
+- name: instalar python mysql
+  apt: name=python-mysqldb state=present
+
+- name: crear base de datos
+  mysql_db: name={{ item.key }} state=present
+  with_dict: '{{databases}}'
+
+- name: crear usuarios
+  mysql_user: name={{item.value.db_user}} password={{item.value.db_password}} priv={{item.key}}.*:ALL host={{item.value.db_host}} append_privs=yes state=present
+  with_dict: '{{databases}}'
+
+#- name: copiar archivo de configuración
+#  template: src=mysqld.cnf.j2 dest=/etc/mysql/mysql.conf.d/mysqld.cnf
+  
+  notify: reiniciar mysql

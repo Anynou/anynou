@@ -1,0 +1,4 @@
+---
+- name: crear carpeta proyecto
+  file: name=/var/www/{{ item.value.proyecto }} state=directory owner=www-data group=www-data
+  with_dict: '{{ proyecto_conf }}'

@@ -1,0 +1,4 @@
+---
+# defaults file for roles/nginx
+puerto_nginx: 80
+aplicacion: default

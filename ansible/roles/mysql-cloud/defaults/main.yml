@@ -1,0 +1,7 @@
+---
+# defaults file for roles/mysql
+#databases:
+#  prueba:
+#    db_user: pruebauser
+#    db_password: pruebapassword
+#    db_host: 'localhost'

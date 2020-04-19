@@ -1,0 +1,6 @@
+---
+# vars file for roles/mysql
+#databases:
+#  pruebarol:
+#    db_user: usuario
+#    db_password: password

@@ -1,0 +1,15 @@
+---
+# tasks file for roles/apache
+
+- name: instalar apache
+  apt: name=apache2 state=present
+
+- name: copiar ficheros
+  copy: src={{ item.value.apacheconf }} dest=/etc/apache2/sites-enabled/
+  with_dict: '{{ apache_conf }}'
+
+- name: habilitar rewrite
+  shell: "a2enmod rewrite"
+
+  notify: reiniciar apache
+

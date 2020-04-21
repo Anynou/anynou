@@ -14,20 +14,11 @@ servers = [
         :eth1 => "192.168.205.11",
         :mem => "2048",
         :cpu => "2"
-    },
-    {
-        :name => "k8s-node-2",
-        :type => "node",
-        :box => "ubuntu/bionic64",
-        :eth1 => "192.168.205.12",
-        :mem => "2048",
-        :cpu => "2"
     }
   ]
 
 $kubebase = <<-SCRIPT
 
-    add-apt-repository universe
     curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
     echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" >> /etc/apt/sources.list.d/kubernetes.list
     apt-get update && apt-get install -y docker.io kubelet kubeadm kubectl kubernetes-cni nfs-kernel-server nfs-common
@@ -37,6 +28,32 @@ $kubebase = <<-SCRIPT
     usermod -aG docker vagrant
   SCRIPT
 
+$master = <<-SCRIPT
+  hostnamectl set-hostname master
+  sed -i 's/preserve_hostname\:\ false/preserve_hostname\:\ true/' /etc/cloud/cloud.cfg
+  kubeadm init --apiserver-advertise-address=192.168.205.10 --pod-network-cidr=192.168.205.0/16
+  mkdir ~/.kube
+  cp /etc/kubernetes/admin.conf ~/.kube/config
+  mkdir /home/vagrant/.kube
+  cp /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+  chown -R vagrant:vagrant /home/vagrant/.kube
+  kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  echo "/media  192.168.205.0/24(rw,sync,no_subtree_check)" >> /etc/exports
+  /etc/init.d/nfs-kernel-server restart
+  kubeadm token create --print-join-command > /media/joincluster.sh
+  chmod +x /media/joincluster.sh
+  echo
+SCRIPT
+
+$node = <<-SCRIPT
+  hostnamectl set-hostname nodo1
+  sed -i 's/preserve_hostname\:\ false/preserve_hostname\:\ true/' /etc/cloud/cloud.cfg
+  echo "192.168.205.10:/media       /media  nfs     defaults        0       0" >> /etc/fstab
+  mount -a
+  /media/joincluster.sh
+SCRIPT
+
+  
 
 Vagrant.configure("2") do |config|
   servers.each do |opts|
@@ -57,4 +74,11 @@ Vagrant.configure("2") do |config|
       config.vm.provision "shell", inline: $kubebase
     end
   end
+  config.vm.define "k8s-master" do |master|
+    master.vm.provision "shell", inline: $master
+  end
+  config.vm.define "k8s-node-1" do |node|
+    node.vm.provision "shell", inline: $node
+  end
+  
 end

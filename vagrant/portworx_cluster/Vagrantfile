@@ -1,0 +1,91 @@
+
+$install_master = <<-SCRIPT
+    hostnamectl set-hostname master
+    sed -i 's/preserve_hostname\:\ false/preserve_hostname\:\ true/' /etc/cloud/cloud.cfg
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    apt-get update && apt-get install -y docker.io 
+    systemctl enable docker.service
+    usermod -aG docker vagrant
+    export IP=192.168.206.10 && echo "IP=$IP" >> /home/vagrant/.bashrc
+    docker run -d --net=host -p 4001:2379 \
+    --volume=/var/lib/px-etcd:/etcd-data \
+    --name etcd quay.io/coreos/etcd /usr/local/bin/etcd \
+    --data-dir=/etcd-data --name node1 \
+    --advertise-client-urls http://${IP}:4001 \
+    --listen-client-urls http://${IP}:4001 \
+    --initial-advertise-peer-urls http://${IP}:2380 \
+    --listen-peer-urls http://${IP}:2380 \
+    --initial-cluster node1=http://${IP}:2380
+
+  SCRIPT
+
+$install_nodo = <<-SCRIPT
+    hostnamectl set-hostname nodo1
+    sed -i 's/preserve_hostname\:\ false/preserve_hostname\:\ true/' /etc/cloud/cloud.cfg
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    apt-get update && apt-get install -y docker.io 
+    systemctl enable docker.service
+    usermod -aG docker vagrant
+    latest_stable=$(curl -fsSL "https://install.portworx.com/?type=dock&stork=false" | awk '/image: / {print $2}') && echo "latest_stable=$latest_stable" >> /home/vagrant/.bashrc
+    docker run --entrypoint /runc-entry-point.sh \
+    --rm -i --privileged=true \
+    -v /opt/pwx:/opt/pwx -v /etc/pwx:/etc/pwx \
+    $latest_stable
+    /opt/pwx/bin/px-runc install -c demo-px-cluster \
+    -k etcd://192.168.206.10:4001 \
+    -s /dev/sdc
+    systemctl daemon-reload
+    systemctl enable portworx
+    systemctl start portworx
+
+  SCRIPT
+
+file_to_disk = './tmp/nodo1_disk.vdi'
+
+
+Vagrant.configure("2") do |config|
+  
+  config.vm.define "master" do |config|
+
+    config.vm.box = "ubuntu/bionic64"
+
+    config.vm.box_check_update = false
+
+    config.vm.network "private_network", ip: "192.168.206.10"
+      
+    config.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.cpus = "2"
+      vb.memory = "2048"
+    end
+  
+    config.vm.provision "shell", inline: $install_master
+
+  end
+    
+  config.vm.define "nodo1" do |config|
+
+    config.vm.box = "ubuntu/bionic64"
+
+    config.vm.box_check_update = false
+
+    config.vm.network "private_network", ip: "192.168.206.11"
+      
+    config.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.cpus = "2"
+      vb.memory = "2048"
+
+      unless File.exist?(file_to_disk)
+        vb.customize ['createhd', '--filename', file_to_disk, '--size', 20 * 1024]
+      end
+
+      vb.customize ['storageattach', :id, '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
+
+    end
+  
+    config.vm.provision "shell", inline: $install_nodo
+
+  end
+    
+end

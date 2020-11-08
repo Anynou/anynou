@@ -1,0 +1,25 @@
+FROM raspbian/stretch:latest
+LABEL author=Sr.Anynou
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get clean all
+RUN apt-get update --fix-missing
+RUN apt-get install -y samba samba-common-bin supervisor
+
+RUN mkdir -p /home/pi/shared
+COPY smb.conf /etc/samba/smb.conf
+RUN useradd pi
+RUN printf "pi\npi\n" | smbpasswd -a -s pi
+
+RUN apt-get clean all
+
+EXPOSE 137/udp 
+EXPOSE 138/udp
+EXPOSE 139/tcp
+EXPOSE 445/tcp
+
+RUN service smbd stop
+COPY supervisord-samba.conf /etc/supervisord.conf
+CMD ["/usr/bin/supervisord"]
+
+

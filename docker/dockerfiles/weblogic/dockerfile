@@ -1,0 +1,62 @@
+FROM centos:7
+LABEL MAINTAINER=Sr.anynou
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN yum update -y && yum install -y unzip
+
+# Instalación Java
+COPY jdk-8u271-linux-x64.rpm /tmp/jdk-8u271-linux-x64.rpm
+RUN yum install -y /tmp/jdk-8u271-linux-x64.rpm
+RUN rm /tmp/jdk-8u271-linux-x64.rpm
+
+# Creación usuario instalación
+RUN groupadd -g 1031 oinstall
+RUN useradd -u 1031 oracle
+RUN usermod -aG oinstall oracle
+
+#Configuración variables
+RUN echo "export JAVA_HOME=/usr/java/jdk1.8.0_271-amd64" >> /etc/profile
+RUN echo "ORACLE_BASE=/u01/app/oracle" >> /home/oracle/.bash_profile
+RUN echo "ORACLE_HOME=\$ORACLE_BASE/product/12.2.1" >> /home/oracle/.bash_profile
+RUN echo "MW_HOME=\$ORACLE_HOME" >> /home/oracle/.bash_profile
+RUN echo "WLS_HOME=\$MW_HOME/wlserver" >> /home/oracle/.bash_profile
+RUN echo "DOMAIN_BASE=\$ORACLE_BASE/config/domains" >> /home/oracle/.bash_profile
+RUN echo "DOMAIN_HOME=\$DOMAIN_BASE/mydomain" >> /home/oracle/.bash_profile
+
+# Creación de directorios
+RUN mkdir -p /u01/app/oracle/product/12.2.1 \
+    /u01/app/oracle/config/domains \
+    /u01/app/oracle/config/applications \
+    /u01/software
+
+# Descomprimir instalador weblogic
+COPY fmw_12.2.1.3.0_wls_quick_Disk1_1of1.zip /tmp/fmw_12.2.1.3.0_wls_quick_Disk1_1of1.zip
+RUN cd /tmp && unzip fmw_12.2.1.3.0_wls_quick_Disk1_1of1.zip
+RUN rm /tmp/fmw_12.2.1.3.0_wls_quick_Disk1_1of1.zip
+RUN chown oracle.oinstall /tmp/*
+
+# Copiar ficheros para la instalación
+COPY wls.rsp /u01/software/wls.rsp
+COPY oraInst.loc /u01/software/oraInst.loc
+
+# Ajustar permisos
+RUN chown -R oracle.oinstall /u01
+
+# Instalar weblogic
+RUN su - oracle -c "/usr/java/jdk1.8.0_271-amd64/bin/java -Xmx1024m \
+                       -jar /tmp/fmw_12.2.1.3.0_wls_quick.jar \
+                      -silent ORACLE_HOME=/u01/app/oracle/product/12.2.1 \
+                      -responseFile /u01/software/wls.rsp \
+                      -invPtrLoc /u01/software/oraInst.loc"
+
+RUN yum clean all
+EXPOSE 8001/tcp
+
+# Creación dominio de prueba
+COPY create_domain.py /u01/app/oracle/product/12.2.1/wlserver/common/bin/create_domain.py
+RUN chown oracle.oracle /u01/app/oracle/product/12.2.1/wlserver/common/bin/create_domain.py && \
+    chmod +x /u01/app/oracle/product/12.2.1/wlserver/common/bin/create_domain.py
+RUN su - oracle -c "cd /u01/app/oracle/product/12.2.1/wlserver/common/bin/ && ./wlst.sh create_domain.py"
+
+CMD ["/bin/bash", "-c", "su - oracle -c \"/u01/app/oracle/config/domains/mydomain/bin/startWebLogic.sh\""] 
+

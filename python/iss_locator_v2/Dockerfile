@@ -2,7 +2,6 @@ FROM python:3.7
 
 WORKDIR /tmp
 
-# Install python/pip
 RUN pip install --no-cache --upgrade pip setuptools
 
 RUN pip install --no-cache-dir flask plotly pandas

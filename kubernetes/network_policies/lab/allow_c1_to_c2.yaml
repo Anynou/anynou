@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: netpol-allow-c1-to-c2
+spec:
+  podSelector:
+    matchLabels:
+      app: contenedor2
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: contenedor1
+    ports:
+    - port: 80

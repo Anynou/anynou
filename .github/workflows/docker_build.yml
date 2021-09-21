@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       image_name:
-        description: NOmbre de la imagen
+        description: Nombre de la imagen
         required: true
         
 jobs:
@@ -20,3 +20,12 @@ jobs:
         username: ${{ secrets.GITLAB_USER }}
         password: ${{ secrets.GITLAB_PASSWORD }}
         registry: registry.gitlab.com
+        
+    - name: Build image
+      working-directory: docker/dockerfiles
+      run: |
+        cd ${{ github.event.inputs.image_name }}
+        docker build -t registry.gitlab.com/anynou/docker_images/${{ github.event.inputs.image_name }}
+        
+    - name: Push image
+      run: docker push registry.gitlab.com/anynou/docker_images/${{ github.event.inputs.image_name }}

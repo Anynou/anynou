@@ -17,3 +17,20 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          
+      - name: Descargar imagen
+        run: docker pull anynou/${{ github.event.inputs.image_name }}
+        
+      - name: Cambiar nombre imagen
+        run: docker tag anynou/${{ github.event.inputs.image_name }} registry.gitlab.com/anynou/docker_images/${{ github.event.inputs.image_name }}
+        
+      - name: Login Gitlab
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.GITLAB_USER }}
+          password: ${{ secrets.GITLAB_PASSWORD }}
+          registry: registry.gitlab.com
+          
+      - name: Push image
+        run: docker push registry.gitlab.com/anynou/docker_images/${{ github.event.inputs.image_name }}
+      

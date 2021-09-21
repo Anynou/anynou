@@ -6,7 +6,7 @@ ENV PHPVERSION 7
 
 RUN apk add --update apache2 php${PHPVERSION}-apache2 php${PHPVERSION} && \
         rm -rf /var/cache/apk/* && \
-        mkdir /run/apache2/ && \
+        mkdir -p /run/apache2/ && \
         rm -rf /var/www/localhost/htdocs/index.html && \
         echo "contenedor2" > /var/www/localhost/htdocs/index.php && \
         chmod 755 /var/www/localhost/htdocs/index.php

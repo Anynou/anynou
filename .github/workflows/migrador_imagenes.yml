@@ -1,0 +1,19 @@
+name: Docker Image Migrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_name:
+        description: Nombre de la imagen
+        required: true
+      
+jobs:
+
+  Image_migrator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login Dockerhub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}

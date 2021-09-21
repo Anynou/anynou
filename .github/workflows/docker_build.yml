@@ -1,0 +1,22 @@
+name: Docker build
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_name:
+        description: NOmbre de la imagen
+        required: true
+        
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    
+  steps:
+    - uses: actions/checkout@v2
+    
+    - name: Login Gitlab
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.GITLAB_USER }}
+        password: ${{ secrets.GITLAB_PASSWORD }}
+        registry: registry.gitlab.com

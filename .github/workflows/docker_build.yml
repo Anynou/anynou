@@ -25,7 +25,7 @@ jobs:
       working-directory: docker/dockerfiles
       run: |
         cd ${{ github.event.inputs.image_name }}
-        docker build -t registry.gitlab.com/anynou/docker_images/${{ github.event.inputs.image_name }}
+        docker build -t registry.gitlab.com/anynou/docker_images/${{ github.event.inputs.image_name }} .
         
     - name: Push image
       run: docker push registry.gitlab.com/anynou/docker_images/${{ github.event.inputs.image_name }}

@@ -9,6 +9,11 @@
             "id": "usuario2",       
             "username": "myuser2",
             "password": "mypassword2"
+        },
+        {
+            "id": "usuario3",       
+            "username": "myuser3",
+            "password": "mypassword3"
         }
 
     ]

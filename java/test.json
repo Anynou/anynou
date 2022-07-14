@@ -1,0 +1,15 @@
+{
+    "credentials": [
+        {
+            "id": "usuario1",       
+            "username": "myuser1",
+            "password": "mypassword1"
+        },
+        {
+            "id": "usuario2",       
+            "username": "myuser2",
+            "password": "mypassword2"
+        }
+
+    ]
+}
